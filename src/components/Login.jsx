@@ -1,29 +1,66 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Header from "./Header";
-import { useRef } from "react";
-import { validateFormData } from "../utils/Validate"; // Import the new validation function
+import { validateFormData } from "../utils/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth } from "../utils/firebase";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+
+const errorMessages = {
+  "auth/invalid-email": "The email address is not valid.",
+  "auth/user-disabled":
+    "This account has been disabled. Please contact support.",
+  "auth/user-not-found": "No account found with this email.",
+  "auth/wrong-password": "Incorrect password. Please try again.",
+  "auth/email-already-in-use":
+    "This email is already registered. Please sign in.",
+  "auth/weak-password":
+    "The password is too weak. It should be at least 8 characters long.",
+  "auth/invalid-credential": "Invalid email or password.",
+};
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const email = useRef(null);
   const password = useRef(null);
-  const fullName = useRef(null); // Reference for full name field
-  const navigate = useNavigate(); // Initialize useNavigate
+  const fullName = useRef(null);
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
     setErrorMessage(null);
   };
 
-  const handleButtonClick = () => {
+  const handleAuth = async (authMethod) => {
+    try {
+      const userCredential = await authMethod(
+        auth,
+        email.current.value,
+        password.current.value
+      );
+      console.log(
+        `${isSignInForm ? "Sign-in" : "Sign-up"} successful!`,
+        userCredential.user
+      );
+    } catch (error) {
+      const friendlyMessage =
+        errorMessages[error.code] ||
+        "An unknown error occurred. Please try again.";
+      setErrorMessage(friendlyMessage);
+
+      if (process.env.NODE_ENV === "development") {
+        console.error(`${isSignInForm ? "Sign-in" : "Sign-up"} error:`, error);
+      }
+    }
+  };
+
+  const handleButtonClick = async () => {
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
     const validation = validateFormData(
       fullName.current ? fullName.current.value.trim() : "",
       email.current.value,
@@ -33,60 +70,18 @@ const Login = () => {
 
     if (!validation.valid) {
       setErrorMessage(validation.message);
+      setIsSubmitting(false);
       return;
     }
 
     setErrorMessage("");
 
-    const handleAuth = (authMethod) => {
-      authMethod(auth, email.current.value, password.current.value)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          console.log(
-            `${isSignInForm ? "Sign-in" : "Sign-up"} successful!`,
-            user
-          );
+    const authMethod = isSignInForm
+      ? signInWithEmailAndPassword
+      : createUserWithEmailAndPassword;
+    await handleAuth(authMethod);
 
-          // Navigate to the "Browse" page
-          navigate("/browse");
-        })
-        .catch((error) => {
-          // Map error codes to user-friendly messages
-          const errorMessages = {
-            "auth/invalid-email": "The email address is not valid.",
-            "auth/user-disabled":
-              "This account has been disabled. Please contact support.",
-            "auth/user-not-found": "No account found with this email.",
-            "auth/wrong-password": "Incorrect password. Please try again.",
-            "auth/email-already-in-use":
-              "This email is already registered. Please sign in.",
-            "auth/weak-password":
-              "The password is too weak. It should be at least 8 characters long.",
-            "auth/invalid-credential": "Invalid email or password.",
-            // Add other error codes as needed
-          };
-
-          const friendlyMessage =
-            errorMessages[error.code] ||
-            "An unknown error occurred. Please try again.";
-
-          setErrorMessage(friendlyMessage);
-
-          // Optional: Log error details to the console for debugging in development mode
-          if (process.env.NODE_ENV === "development") {
-            console.error(
-              `${isSignInForm ? "Sign-in" : "Sign-up"} error:`,
-              error
-            );
-          }
-        });
-    };
-
-    if (isSignInForm) {
-      handleAuth(signInWithEmailAndPassword);
-    } else {
-      handleAuth(createUserWithEmailAndPassword);
-    }
+    setIsSubmitting(false);
   };
 
   return (
