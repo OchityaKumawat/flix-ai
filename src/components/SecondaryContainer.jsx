@@ -1,30 +1,25 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import MovieList from "./MovieList";
 
 // SecondaryContainer.jsx
 const SecondaryContainer = () => {
-  const movies = useSelector((store) => store.movies?.nowPlayingMovies);
-  if (!movies) return null;
+  const movies = useSelector((store) => store.movies);
 
   return (
-    <div className="bg-black text-white px-8 py-6">
-      {["Trending Now", "Top Picks for You", "New Releases"].map(
-        (category, index) => (
-          <div key={index} className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">{category}</h2>
-            <div className="flex space-x-4 overflow-x-scroll scrollbar-hide">
-              {movies.slice(0, 10).map((movie) => (
-                <div
-                  key={movie.id}
-                  className="min-w-[200px] h-[300px] rounded-lg bg-cover bg-center"
-                  style={{ backgroundImage: `url(${movie.poster_path})` }}
-                ></div>
-              ))}
-            </div>
-          </div>
-        )
-      )}
-    </div>
+    movies.nowPlayingMovies && (
+      <div className="bg-black">
+        <div className=" mt-0 md:-mt-52 pl-4 md:pl-12 relative z-20">
+          <MovieList title={"Now Playing"} movies={movies.nowPlayingMovies} />
+          <MovieList title={"Trending"} movies={movies.nowPlayingMovies} />
+          <MovieList
+            title={"Upcoming Movies"}
+            movies={movies.nowPlayingMovies}
+          />
+          <MovieList title={"Horror"} movies={movies.nowPlayingMovies} />
+        </div>
+      </div>
+    )
   );
 };
 
