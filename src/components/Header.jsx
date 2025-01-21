@@ -52,7 +52,7 @@ const Header = () => {
   };
 
   return (
-    <div className="flex absolute w-full px-8 py-2 bg-gradient-to-b from-black z-10 justify-between items-center">
+    <div className="flex absolute w-full px-8 py-2 bg-gradient-to-b from-black z-20 justify-between items-center">
       {/* Logo */}
       <img
         className="max-w-[12rem] w-full h-auto object-contain"
@@ -75,11 +75,12 @@ const Header = () => {
             </select>
           )}
           <button
-            className="py-2 px-4 bg-purple-800 text-white rounded-lg"
+            className="py-2 px-5 bg-gradient-to-r from-purple-500 to-purple-700 text-white font-semibold text-sm rounded-lg shadow-md hover:shadow-lg hover:from-purple-400 hover:to-purple-600 transition-all duration-300 ease-in-out whitespace-nowrap"
             onClick={handleGptSearchClick}
           >
-            {showGptSearch ? "Homepage" : "GPT Search"}
+            {showGptSearch ? "Go to Homepage" : "GPT Search"}
           </button>
+
           <img
             className="w-full h-full rounded-full cursor-pointer"
             src="https://img.icons8.com/isometric/50/user.png"
