@@ -1,6 +1,9 @@
 import MovieCard from "./MovieCard";
+import ShimmerCard from "./ShimmerCard";
 
 const MovieList = ({ title, movies }) => {
+  const isLoading = !movies || movies.length === 0;
+
   return (
     <div className="px-6 md:px-12">
       {/* Section Title */}
@@ -9,10 +12,13 @@ const MovieList = ({ title, movies }) => {
       {/* Carousel */}
       <div className="relative">
         <div className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory">
-          {/* <scrollbar-hide></scrollbar-hide> */}
-          {movies?.map((movie) => (
-            <MovieCard key={movie.id} posterPath={movie.poster_path} />
-          ))}
+          {isLoading
+            ? Array.from({ length: 5 }).map((_, index) => (
+                <ShimmerCard key={index} />
+              ))
+            : movies?.map((movie) => (
+                <MovieCard key={movie.id} posterPath={movie.poster_path} />
+              ))}
         </div>
       </div>
     </div>
