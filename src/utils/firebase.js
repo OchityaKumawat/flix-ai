@@ -8,7 +8,7 @@ import { getAuth } from "firebase/auth";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyCCutxIoYvqeXj2tNU5PvfD1-xEa9y49c4",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "flix-ai.firebaseapp.com",
   projectId: "flix-ai",
   storageBucket: "flix-ai.firebasestorage.app",
